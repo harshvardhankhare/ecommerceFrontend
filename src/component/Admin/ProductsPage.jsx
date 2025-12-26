@@ -13,8 +13,29 @@ import {
 } from "@heroicons/react/24/outline";
 import { productsAPI } from "./api"; // We'll create this
 import { toast } from "react-toastify";
+import { categories, mockProducts } from "../../mock/mockData";
 
 const ProductsPage = () => {
+  const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
+  const UPLOAD_PRESET = process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET;
+  const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+
+  const uploadImageToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
+
+    const res = await fetch(CLOUDINARY_UPLOAD_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) throw new Error("Image upload failed");
+
+    const data = await res.json();
+    return data.secure_url;
+  };
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -23,6 +44,8 @@ const ProductsPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [imageUploading, setImageUploading] = useState(false);
+
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -34,62 +57,6 @@ const ProductsPage = () => {
     discountPercentage: 0,
     rating: 0,
   });
-
-  // Sample categories
-  const categories = [
-    { id: 1, name: "Clothes" },
-    { id: 2, name: "Electronics" },
-    { id: 3, name: "Furniture" },
-    { id: 4, name: "Shoes" },
-    { id: 4, name: "Food" },
-    { id: 5, name: "Others" },
-  ];
-  const mockProducts = [
-    {
-      id: 4,
-      title: "Classic Grey Hooded Sweatshirt",
-      slug: "classic-grey-hooded-sweatshirt",
-      price: 90,
-      description:
-        "Elevate your casual wear with our Classic Grey Hooded Sweatshirt...",
-      category: {
-        id: 1,
-        name: "Clothes",
-        slug: "clothes",
-        image: "https://i.imgur.com/QkIa5tT.jpeg",
-      },
-      images: [
-        "https://i.imgur.com/R2PN9Wq.jpeg",
-        "https://i.imgur.com/IvxMPFr.jpeg",
-        "https://i.imgur.com/7eW9nXP.jpeg",
-      ],
-      stock: 150,
-      sku: "PROD001",
-      discountPercentage: 10,
-      rating: 4.5,
-      creationAt: "2025-12-21T10:10:21.000Z",
-      updatedAt: "2025-12-21T10:10:21.000Z",
-    },
-    {
-      id: 5,
-      title: "Wireless Bluetooth Headphones",
-      slug: "wireless-bluetooth-headphones",
-      price: 199,
-      description: "Premium wireless headphones with noise cancellation...",
-      category: {
-        id: 2,
-        name: "Electronics",
-        slug: "electronics",
-      },
-      images: ["https://i.imgur.com/xyz123.jpeg"],
-      stock: 75,
-      sku: "PROD002",
-      discountPercentage: 15,
-      rating: 4.8,
-      creationAt: "2025-12-21T10:10:21.000Z",
-      updatedAt: "2025-12-21T10:10:21.000Z",
-    },
-  ];
 
   // Fetch products on mount
   useEffect(() => {
@@ -116,7 +83,6 @@ const ProductsPage = () => {
       return;
     }
     try {
-      // find full category object from categoryId
       const selectedCategoryObj = categories.find(
         (cat) => cat.id === Number(formData.categoryId)
       );
@@ -127,7 +93,6 @@ const ProductsPage = () => {
       }
 
       if (editingProduct) {
-        // UPDATE PRODUCT
         const updatedProducts = products.map((p) =>
           p.id === editingProduct.id
             ? {
@@ -617,10 +582,9 @@ const ProductsPage = () => {
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                         placeholder="Enter product description"
                       />
-                        <div className="text-right text-sm text-gray-500 mt-1">
-    {formData.description.length}/255
-  </div>
-
+                      <div className="text-right text-sm text-gray-500 mt-1">
+                        {formData.description.length}/255
+                      </div>
                     </div>
 
                     <div>
@@ -639,15 +603,31 @@ const ProductsPage = () => {
                       {formData.images.map((image, index) => (
                         <div key={index} className="flex space-x-2 mb-2">
                           <input
-                            type="url"
-                            required
-                            value={image}
-                            onChange={(e) =>
-                              updateImageField(index, e.target.value)
-                            }
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                            placeholder="https://example.com/image.jpg"
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files[0];
+                              if (!file) return;
+
+                              toast.info("Uploading image...");
+
+                              try {
+                                setImageUploading(true);
+                                const imageUrl = await uploadImageToCloudinary(
+                                  file
+                                );
+
+                                updateImageField(index, imageUrl);
+                                toast.success("Image uploaded");
+                              } catch (err) {
+                                toast.error("Image upload failed");
+                              } finally {
+                                setImageUploading(false);
+                              }
+                            }}
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
                           />
+
                           {formData.images.length > 1 && (
                             <button
                               type="button"
@@ -676,11 +656,22 @@ const ProductsPage = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-primary-dark flex items-center space-x-2"
+                    disabled={imageUploading}
+                    className={`px-4 py-2 rounded-lg text-white flex items-center space-x-2
+    ${
+      imageUploading
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-green-500 hover:bg-green-600"
+    }
+  `}
                   >
-                    <CheckIcon className="h-5 w-5 bg-green-500" />
+                    <CheckIcon className="h-5 w-5" />
                     <span>
-                      {editingProduct ? "Update Product" : "Create Product"}
+                      {imageUploading
+                        ? "Uploading Image..."
+                        : editingProduct
+                        ? "Update Product"
+                        : "Create Product"}
                     </span>
                   </button>
                 </div>

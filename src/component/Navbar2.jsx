@@ -159,7 +159,7 @@ const navigate = useNavigate();
           {mobileMenuOpen && (
             <div className="md:hidden border-t border-gray-200 py-4">
               <div className="space-y-4">
-                <Link to="/" className="block text-gray-700 hover:text-primary">
+                <Link to="/home" className="block text-gray-700 hover:text-primary">
                   Home
                 </Link>
                 <Link

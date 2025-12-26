@@ -163,7 +163,7 @@ const navigate = useNavigate();
                   Home
                 </Link>
                 <Link
-                  to="/shop"
+                  to="/products"
                   className="block text-gray-700 hover:text-primary"
                 >
                   Shop

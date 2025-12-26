@@ -10,9 +10,11 @@ import {
   ClipboardDocumentListIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate,useLocation } from 'react-router-dom';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
+  const location = useLocation();
+
   const navigate = useNavigate();
   const menuItems = [
     { name: 'Dashboard', icon: HomeIcon, active: true,path:'/admin' },

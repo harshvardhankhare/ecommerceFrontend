@@ -49,26 +49,38 @@ navigate("/login/admin")
 
           {/* Navigation */}
           <nav className="flex-1 p-4">
-            <ul className="space-y-2">
-              {menuItems.map((item) => (
-                <li key={item.name}>
-                  <a
-                    href={item.path}
-                    className={`flex items-center bg-gray-800 justify-between p-3 rounded-lg hover:bg-orange-500 transition-colors ${item.active ? 'bg-green-500 text-primary' : ''}`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <item.icon className="h-5 w-5" />
-                      <span>{item.name}</span>
-                    </div>
-                    {item.count && (
-                      <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">
-                        {item.count}
-                      </span>
-                    )}
-                  </a>
-                </li>
-              ))}
-            </ul>
+           <ul className="space-y-2">
+  {menuItems.map((item) => (
+    <li key={item.name}>
+      {item.path ? (
+        <Link
+          to={item.path}
+          className={`flex items-center justify-between p-3 rounded-lg transition-colors
+            ${
+              location.pathname === item.path
+                ? "bg-green-500 text-white"
+                : "bg-gray-800 hover:bg-orange-500"
+            }`}
+        >
+          <div className="flex items-center space-x-3">
+            <item.icon className="h-5 w-5" />
+            <span>{item.name}</span>
+          </div>
+          {item.count && (
+            <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">
+              {item.count}
+            </span>
+          )}
+        </Link>
+      ) : (
+        <div className="flex items-center p-3 bg-gray-800 rounded-lg opacity-50 cursor-not-allowed">
+          <item.icon className="h-5 w-5 mr-3" />
+          {item.name}
+        </div>
+      )}
+    </li>
+  ))}
+</ul>
           </nav>
 
           {/* User Profile */}

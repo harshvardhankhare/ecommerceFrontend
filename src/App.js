@@ -148,6 +148,17 @@ function App() {
           }
         />
       </Routes>
+      <Route
+  path="*"
+  element={
+    <ProtectedRoute>
+      <div className="flex justify-center items-center h-screen text-2xl font-bold">
+        404 – Page Not Found
+      </div>
+    </ProtectedRoute>
+  }
+/>
+
     </BrowserRouter>
   );
 }

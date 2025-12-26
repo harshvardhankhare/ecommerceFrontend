@@ -125,7 +125,6 @@ const Home = () => {
       <Navbar2/>
       <div className="overflow-x-hidden">
         <Carausel />
-        <MidBanner />
         <div className="py-8 px-4 sm:px-6 lg:px-8">
       
             <div className="mb-12">
@@ -165,6 +164,8 @@ const Home = () => {
                 </div>
               </div>
                 </div>
+        <MidBanner />
+        
         <Features />
       </div>
       <Footer/>

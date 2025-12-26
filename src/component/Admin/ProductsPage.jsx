@@ -21,7 +21,6 @@ const ProductsPage = () => {
   const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
   const uploadImageToCloudinary = async (file) => {
-
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
@@ -30,11 +29,11 @@ const ProductsPage = () => {
       method: "POST",
       body: formData,
     });
-          console.log("Cloudinary response:", data);
+
+    console.log(res);
     if (!res.ok) throw new Error("Image upload failed");
 
     const data = await res.json();
-    console.log(data.secure_url)
     return data.secure_url;
   };
 
@@ -47,7 +46,6 @@ const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [imageUploading, setImageUploading] = useState(false);
-  const [imgurl,setImgurl] = useState("")
 
   const [formData, setFormData] = useState({
     title: "",
@@ -117,16 +115,17 @@ const ProductsPage = () => {
         //   creationAt: new Date().toISOString(),
         //   updatedAt: new Date().toISOString(),
         // };
+        console.log(formData);
         const newProduct = {
           name: formData.title,
           desc: formData.description,
           price: formData.price,
           category: selectedCategoryObj.name,
-          img: imgurl,
+          img: formData.images[0],
           slug: formData.sku,
           discount: formData.discountPercentage,
         };
-
+        console.log(newProduct);
         let res = await productsAPI.createProduct(newProduct);
         toast.success(res);
       }
@@ -619,7 +618,7 @@ const ProductsPage = () => {
                                 const imageUrl = await uploadImageToCloudinary(
                                   file
                                 );
-                                        setImgurl(imageUrl)
+                                console.log(imageUrl);
                                 updateImageField(index, imageUrl);
                                 toast.success("Image uploaded");
                               } catch (err) {

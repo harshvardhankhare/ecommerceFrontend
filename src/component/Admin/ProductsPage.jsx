@@ -21,8 +21,7 @@ const ProductsPage = () => {
   const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
   const uploadImageToCloudinary = async (file) => {
-    console.log(CLOUD_NAME)
-    console.log(UPLOAD_PRESET)
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
@@ -35,6 +34,7 @@ const ProductsPage = () => {
     if (!res.ok) throw new Error("Image upload failed");
 
     const data = await res.json();
+    console.log(data.secure_url)
     return data.secure_url;
   };
 
@@ -47,6 +47,7 @@ const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [imageUploading, setImageUploading] = useState(false);
+  const [imgurl,setImgurl] = useState("")
 
   const [formData, setFormData] = useState({
     title: "",
@@ -121,7 +122,7 @@ const ProductsPage = () => {
           desc: formData.description,
           price: formData.price,
           category: selectedCategoryObj.name,
-          img: formData.images[0],
+          img: imgurl,
           slug: formData.sku,
           discount: formData.discountPercentage,
         };
@@ -618,7 +619,7 @@ const ProductsPage = () => {
                                 const imageUrl = await uploadImageToCloudinary(
                                   file
                                 );
-
+                                        setImgurl(imageUrl)
                                 updateImageField(index, imageUrl);
                                 toast.success("Image uploaded");
                               } catch (err) {

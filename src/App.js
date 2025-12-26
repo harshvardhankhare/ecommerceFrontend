@@ -147,8 +147,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-      </Routes>
-      <Route
+           <Route
   path="*"
   element={
     <ProtectedRoute>
@@ -158,6 +157,8 @@ function App() {
     </ProtectedRoute>
   }
 />
+      </Routes>
+   
 
     </BrowserRouter>
   );

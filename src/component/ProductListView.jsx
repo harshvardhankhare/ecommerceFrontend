@@ -1,10 +1,10 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { addToCart } from '../api/axios'
 
 const ProductListView = ({product}) => {
   const navigate = useNavigate()
-  const {addToCart} = []
      const handleAddToCart = async()=>{
                 let res = await addToCart({
                  "productId":product.productId,

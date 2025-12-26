@@ -29,7 +29,7 @@ const navigate = useNavigate();
               <span>🚚 Free shipping on orders over $50</span>
             </div>
             <div className="flex space-x-4">
-              <Link to="/admin/login" className="hover:text-yellow-300">
+              <Link to="/login/admin" className="hover:text-yellow-300">
                 Admin Panel
               </Link>
               <span>Help Center</span>

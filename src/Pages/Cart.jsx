@@ -12,62 +12,56 @@ import {
   increaseQuantity,
   decreaseQuantity,
   removeCartItem,
-  placeOrder
+  placeOrder,
 } from "../api/axios";
 import { toast } from "react-toastify";
 
-
 const Cart = ({ location, getLocation }) => {
-
-  const [user, setUser] = useState();
   const navigate = useNavigate();
   const [data, setData] = useState();
   const [cartItem, setCartItem] = useState();
-  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true); // initial load
+  const [updatingItemId, setUpdatingItemId] = useState(null); // +/- per item
+  const [placingOrder, setPlacingOrder] = useState(false);
+
   const [address, setAddress] = useState({
-  fullName: "",
-  street: "",
-  state: "",
-  postcode: "",
-  country: "",
-  phone: ""
-});
+    fullName: "",
+    street: "",
+    state: "",
+    postcode: "",
+    country: "",
+    phone: "",
+  });
 
   useEffect(() => {
-    const getUser = async () => {
+    const loadCart = async () => {
+      setPageLoading(true);
       try {
-        setLoading(true)
-        let res = await getMe();
-        setUser(res);
-        let response = await getCart(res.id);
-        
-        setData(response);
-        setCartItem(response.items);
-      } catch (err) {
-        console.error(err)
-      }finally{
-        setLoading(false)
-      }
+        const user = await getMe();
 
+        const cart = await getCart(user.id);
+        setData(cart);
+        setCartItem(cart.items);
+      } catch (err) {
+        toast.error("Failed to load cart");
+      } finally {
+        setPageLoading(false);
+      }
     };
-    getUser();
+
+    loadCart();
   }, []);
 
-  const handleCheckOut = async(e)=>{
-     if (
-    !address.street?.trim() ||
-    !address.postcode?.trim()
-  ) {
-    toast.error("Street and Postcode are required");
-    return; 
-  }
+  const handleCheckOut = async (e) => {
+    if (!address.street?.trim() || !address.postcode?.trim()) {
+      toast.error("Street and Postcode are required");
+      return;
+    }
     e.preventDefault();
-     try {
+    try {
+       setPlacingOrder(true);
 
-      setLoading(true);
-       
-
-      const res = await placeOrder({
+       await placeOrder({
         address: `
           ${address.fullName},
           ${address.street},
@@ -76,28 +70,83 @@ const Cart = ({ location, getLocation }) => {
           ${address.country},
           Phone: ${address.phone}
         `,
-        paymentMethod: "COD"
+        paymentMethod: "COD",
       });
 
       toast.success("Order Placed SuccesFully");
     } catch (err) {
       console.error(err);
-      toast.error("failed to place order")
+      toast.error("failed to place order");
     } finally {
-      toast.error("Failed TO Place order")
-      setLoading(false);
+       setPlacingOrder(false);
     }
-    console.log(address)
-  }
+    
+  };
 
   const totalPrice = data?.totalPrice ?? 0;
+  const handleIncrease = async (item) => {
+    setUpdatingItemId(item.id);
+
+    // optimistic update
+    setCartItem((prev) =>
+      prev.map((i) =>
+        i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+      )
+    );
+
+    try {
+      const res = await increaseQuantity(item.id);
+      setCartItem(res.data.items);
+      setData(res.data);
+    } catch (err) {
+      toast.error("Failed to update quantity");
+    } finally {
+      setUpdatingItemId(null);
+    }
+  };
+  const handleDecrease = async (item) => {
+    if (item.quantity <= 1) return;
+
+    setUpdatingItemId(item.id);
+
+    setCartItem((prev) =>
+      prev.map((i) =>
+        i.id === item.id ? { ...i, quantity: i.quantity - 1 } : i
+      )
+    );
+
+    try {
+      const res = await decreaseQuantity(item.id);
+      setCartItem(res.data.items);
+      setData(res.data);
+    } catch (err) {
+      toast.error("Failed to update quantity");
+    } finally {
+      setUpdatingItemId(null);
+    }
+  };
+  const handleRemove = async (itemId) => {
+  setUpdatingItemId(itemId);
+
+  try {
+    const res = await removeCartItem(itemId);
+    setData(res.data);
+    setCartItem(res.data.items);
+  } catch (err) {
+    toast.error("Failed to remove item");
+  } finally {
+    setUpdatingItemId(null);
+  }
+};
+
+
   return (
     <>
       <Navbar2 />
       <div className="mt-10 max-w-6xl mx-auto mb-5 px-4 md:px-0">
-        {loading ? (
+        {pageLoading ? (
           <div className="text-center py-20 text-gray-500">
-            Updating your cart...
+            Loading your cart...
           </div>
         ) : cartItem?.length > 0 ? (
           <div>
@@ -109,7 +158,7 @@ const Cart = ({ location, getLocation }) => {
                 {cartItem.map((item, index) => {
                   return (
                     <div
-                      key={index}
+                      key={item.id}
                       className="bg-gray-100 p-5 rounded-md flex items-center justify-between mt-3 w-full"
                     >
                       <div className="flex items-center gap-4">
@@ -129,41 +178,25 @@ const Cart = ({ location, getLocation }) => {
                       </div>
                       <div className="bg-red-500 text-white flex gap-4 p-2 rounded-md font-bold text-xl">
                         <button
-                          onClick={async () => {
-                            const res = await decreaseQuantity(item.id);
-                            setCartItem(res.data.items);
-                            setData(res.data);
-                          }}
+                          onClick={() => handleDecrease(item)}
+                          disabled={
+                            updatingItemId === item.id || item.quantity <= 1
+                          }
                           className="cursor-pointer"
                         >
                           -
                         </button>
                         <span>{item.quantity}</span>
                         <button
-                          onClick={async () => {
-                            const res = await increaseQuantity(item.id);
-                            setCartItem(res.data.items);
-                            setData(res.data);
-                          }}
+                          onClick={() => handleIncrease(item)}
+                          disabled={updatingItemId === item.id}
                           className="cursor-pointer"
                         >
                           +
                         </button>
                       </div>
                       <span
-                        onClick={async () => {
-                          try {
-                            setLoading(true);
-
-                            const res = await removeCartItem(item.id);
-                            setData(res.data);
-                            setCartItem(res.data.items);
-                          } catch (err) {
-                            console.error(err);
-                          } finally {
-                            setLoading(false);
-                          }
-                        }}
+                       onClick={() => handleRemove(item.id)}
                         className="hover:bg-white/60 transition-all rounded-full p-3 hover:shadow-2xl"
                       >
                         <FaRegTrashAlt className="text-red-500 text-2xl cursor-pointer" />
@@ -185,7 +218,8 @@ const Cart = ({ location, getLocation }) => {
                       className="p-2 rounded-md"
                       value={address.fullName}
                       onChange={(e) =>
-    setAddress({ ...address, fullName: e.target.value })}
+                        setAddress({ ...address, fullName: e.target.value })
+                      }
                     />
                   </div>
                   <div className="flex flex-col space-y-1">
@@ -195,9 +229,9 @@ const Cart = ({ location, getLocation }) => {
                       placeholder="Enter your address"
                       className="p-2 rounded-md"
                       value={address?.street}
-                       onChange={(e) =>
-    setAddress({ ...address, street: e.target.value })
-  }
+                      onChange={(e) =>
+                        setAddress({ ...address, street: e.target.value })
+                      }
                     />
                   </div>
                   <div className="flex w-full gap-5">
@@ -208,9 +242,9 @@ const Cart = ({ location, getLocation }) => {
                         placeholder="Enter your state"
                         className="p-2 rounded-md w-full"
                         value={address?.state}
-                         onChange={(e) =>
-    setAddress({ ...address, state: e.target.value })
-  }
+                        onChange={(e) =>
+                          setAddress({ ...address, state: e.target.value })
+                        }
                       />
                     </div>
                     <div className="flex flex-col space-y-1 w-full">
@@ -221,7 +255,8 @@ const Cart = ({ location, getLocation }) => {
                         className="p-2 rounded-md w-full"
                         value={address?.postcode}
                         onChange={(e) =>
-    setAddress({ ...address, postcode: e.target.value })}
+                          setAddress({ ...address, postcode: e.target.value })
+                        }
                       />
                     </div>
                   </div>
@@ -229,27 +264,26 @@ const Cart = ({ location, getLocation }) => {
                     <div className="flex flex-col space-y-1 w-full">
                       <label htmlFor="">Country</label>
                       <input
-                      required
+                        required
                         type="text"
                         placeholder="Enter your country"
                         className="p-2 rounded-md w-full"
                         value={address?.country}
-                         onChange={(e) =>
-    setAddress({ ...address, country: e.target.value })}
-  
+                        onChange={(e) =>
+                          setAddress({ ...address, country: e.target.value })
+                        }
                       />
                     </div>
                     <div className="flex flex-col space-y-1 w-full">
                       <label htmlFor="">Phone No</label>
                       <input
-                      required
+                        required
                         type="text"
                         placeholder="Enter your Number"
                         className="p-2 rounded-md w-full"
-                          onChange={(e) =>
-    setAddress({ ...address, phone: e.target.value })
-  
-  }
+                        onChange={(e) =>
+                          setAddress({ ...address, phone: e.target.value })
+                        }
                       />
                     </div>
                   </div>
@@ -322,8 +356,13 @@ const Cart = ({ location, getLocation }) => {
                       </button>
                     </div>
                   </div>
-                  <button onClick={handleCheckOut} className="bg-red-500 text-white px-3 py-2 rounded-md w-full cursor-pointer mt-3">
-                    Proceed to Checkout
+                  <button
+                    onClick={handleCheckOut}
+                      disabled={placingOrder}
+                     className={`bg-red-500 text-white px-3 py-2 rounded-md w-full mt-3
+    ${placingOrder ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                      {placingOrder ? "Placing order..." : "Proceed to Checkout"}
                   </button>
                 </div>
               </div>

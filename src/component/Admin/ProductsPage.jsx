@@ -21,6 +21,8 @@ const ProductsPage = () => {
   const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
   const uploadImageToCloudinary = async (file) => {
+    console.log(CLOUD_NAME)
+    console.log(UPLOAD_PRESET)
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", UPLOAD_PRESET);
@@ -29,7 +31,7 @@ const ProductsPage = () => {
       method: "POST",
       body: formData,
     });
-
+          console.log("Cloudinary response:", data);
     if (!res.ok) throw new Error("Image upload failed");
 
     const data = await res.json();

@@ -18,7 +18,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const navigate = useNavigate();
   const menuItems = [
     { name: 'Dashboard', icon: HomeIcon, active: true,path:'/admin' },
-    { name: 'Orders', icon: ShoppingCartIcon, count: 12 },
+    { name: 'Orders', icon: ShoppingCartIcon, count: 12 , path:'/add' },
     { name: 'Products', icon: TagIcon, count: 156 ,path:"/add"},
     { name: 'Customers', icon: UsersIcon, count: 892 },
     { name: 'Inventory', icon: ClipboardDocumentListIcon },
@@ -57,12 +57,8 @@ navigate("/login/admin")
       {item.path ? (
         <Link
           to={item.path}
-          className={`flex items-center justify-between p-3 rounded-lg transition-colors
-            ${
-              location.pathname === item.path
-                ? "bg-green-500 text-white"
-                : "bg-gray-800 hover:bg-orange-500"
-            }`}
+          className='flex bg-gray-800 text-white items-center justify-between p-3 rounded-lg transition-colors'
+           
         >
           <div className="flex items-center space-x-3">
             <item.icon className="h-5 w-5" />

@@ -14,6 +14,7 @@ import {
 import { productsAPI } from "./api"; // We'll create this
 import { toast } from "react-toastify";
 import { categories, mockProducts } from "../../mock/mockData";
+import { fetchAllProducts } from "../../api/axios";
 
 const ProductsPage = () => {
   const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
@@ -46,6 +47,8 @@ const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [imageUploading, setImageUploading] = useState(false);
+const[datProduct,setDataProduct] = useState([])
+
 
   const [formData, setFormData] = useState({
     title: "",
@@ -67,8 +70,11 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      let res = await fetchAllProducts()
+      console.log(res)
+  
       // Mock data - replace with actual API call
-      setProducts(mockProducts);
+      setProducts(res);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -198,10 +204,10 @@ const ProductsPage = () => {
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.sku?.toLowerCase().includes(searchTerm.toLowerCase());
+      product.product_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.slug?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === "all" || product.category.name === selectedCategory;
+      selectedCategory === "all" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -304,34 +310,34 @@ const ProductsPage = () => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
+                  <tr key={product.productId} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <img
-                          src={product.images[0]}
-                          alt={product.title}
+                          src={product.imgLink}
+                          alt={product.product_name}
                           className="h-12 w-12 rounded-lg object-cover mr-4"
                         />
                         <div>
                           <div className="font-medium text-gray-900">
-                            {product.title}
+                            {product.product_name}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {product.sku}
+                            {product.slug}
                           </div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {product.category.name}
+                        {product.category}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-medium">${product.price}</div>
-                      {product.discountPercentage > 0 && (
+                      <div className="font-medium">${product.product_price}</div>
+                      {product.discount > 0 && (
                         <div className="text-sm text-green-600">
-                          {product.discountPercentage}% off
+                          {product.discount}% off
                         </div>
                       )}
                     </td>
@@ -691,9 +697,9 @@ const ProductsPage = () => {
               <div className="flex justify-between items-start mb-6">
                 <div>
                   <h2 className="text-2xl font-bold">
-                    {selectedProduct.title}
+                    {selectedProduct.product_name}
                   </h2>
-                  <p className="text-gray-600">{selectedProduct.sku}</p>
+                  <p className="text-gray-600">{selectedProduct.slug}</p>
                 </div>
                 <button
                   onClick={() => setSelectedProduct(null)}
@@ -708,8 +714,8 @@ const ProductsPage = () => {
                 <div>
                   <div className="mb-4">
                     <img
-                      src={selectedProduct.images[0]}
-                      alt={selectedProduct.title}
+                      src={selectedProduct.imgLink}
+                      alt={selectedProduct.product_name}
                       className="w-full h-64 object-cover rounded-lg"
                     />
                   </div>
@@ -718,7 +724,7 @@ const ProductsPage = () => {
                       <img
                         key={index}
                         src={image}
-                        alt={`${selectedProduct.title} ${index + 1}`}
+                        alt={`${selectedProduct.imageUrl} ${index + 1}`}
                         className="h-20 w-full object-cover rounded-lg"
                       />
                     ))}
@@ -738,13 +744,13 @@ const ProductsPage = () => {
                     <div>
                       <p className="text-sm text-gray-500">Price</p>
                       <p className="text-xl font-bold">
-                        ${selectedProduct.price}
+                        ${selectedProduct.product_price}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Category</p>
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                        {selectedProduct.category.name}
+                        {selectedProduct.category}
                       </span>
                     </div>
                     <div>
@@ -762,7 +768,7 @@ const ProductsPage = () => {
                     <div>
                       <p className="text-sm text-gray-500">Discount</p>
                       <p className="text-green-600 font-medium">
-                        {selectedProduct.discountPercentage}%
+                        {selectedProduct.discount}%
                       </p>
                     </div>
                   </div>

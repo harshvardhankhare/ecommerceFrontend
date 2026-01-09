@@ -4,7 +4,6 @@ import {
   PencilIcon,
   TrashIcon,
   EyeIcon,
-  ArrowUpTrayIcon,
   MagnifyingGlassIcon,
   FunnelIcon,
   XMarkIcon,
@@ -100,7 +99,7 @@ const ProductsPage = () => {
 
       if (editingProduct) {
         const updatedProducts = products.map((p) =>
-          p.id === editingProduct.id
+          p.productId === editingProduct.productId
             ? {
                 ...p,
                 ...formData,
@@ -159,10 +158,11 @@ const ProductsPage = () => {
   };
 
   const handleDelete = async (productId) => {
-    e.preventDefault()
+  
     try {
       console.log("Deleting product:", productId);
       setShowDeleteModal(false);
+    setSelectedProduct(null);
       const res = await deleteProduct(productId)
       console.log(res)
       fetchProducts();
@@ -610,7 +610,7 @@ const ProductsPage = () => {
                           Add Image
                         </button>
                       </div>
-                      {formData.images.map((image, index) => (
+                      {formData.images?.map((image, index) => (
                         <div key={index} className="flex space-x-2 mb-2">
                           <input
                             type="file"
@@ -722,7 +722,7 @@ const ProductsPage = () => {
                     />
                   </div>
                   <div className="grid grid-cols-3 gap-2">
-                    {selectedProduct.images.map((image, index) => (
+                    {selectedProduct.images?.map((image, index) => (
                       <img
                         key={index}
                         src={image}
@@ -841,7 +841,7 @@ const ProductsPage = () => {
                   Delete Product
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  Are you sure you want to delete "{selectedProduct?.title}"?
+                  Are you sure you want to delete "{selectedProduct?.product_name}"?
                   This action cannot be undone.
                 </p>
               </div>

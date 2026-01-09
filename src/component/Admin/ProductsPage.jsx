@@ -69,7 +69,7 @@ const ProductsPage = () => {
     try {
       setLoading(true);
       let res = await fetchAllProducts()
-      console.log(res)
+    
   
       // Mock data - replace with actual API call
       setProducts(res);
@@ -160,12 +160,12 @@ const ProductsPage = () => {
   const handleDelete = async (productId) => {
   
     try {
-      console.log("Deleting product:", productId);
+      
       setShowDeleteModal(false);
     setSelectedProduct(null);
-      const res = await deleteProduct(productId)
-      console.log(res)
+       await deleteProduct(productId)
       fetchProducts();
+      toast.success("Product Deleted SuccessFully")
     } catch (error) {
       console.error("Error deleting product:", error);
     }

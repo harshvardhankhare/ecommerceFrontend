@@ -47,7 +47,6 @@ const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [imageUploading, setImageUploading] = useState(false);
-const[datProduct,setDataProduct] = useState([])
 
 
   const [formData, setFormData] = useState({
@@ -160,10 +159,12 @@ const[datProduct,setDataProduct] = useState([])
   };
 
   const handleDelete = async (productId) => {
+    e.preventDefault()
     try {
       console.log("Deleting product:", productId);
       setShowDeleteModal(false);
       const res = await deleteProduct(productId)
+      console.log(res)
       fetchProducts();
     } catch (error) {
       console.error("Error deleting product:", error);

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BASE_URL,
+  baseURL: process.env.REACT_APP_BASE_URL || "http://localhost:8080",
 });
 
 api.interceptors.request.use((config) => {
@@ -128,5 +128,8 @@ export const getOrderById =(id) =>{
 }
 export const getSearch = (query)=>{
   return api.get(`products/search?q=${query}`)
+}
+export const deleteProduct = (id) => {
+  return api.delete(`products/delete/${id}`);
 }
 export default api;

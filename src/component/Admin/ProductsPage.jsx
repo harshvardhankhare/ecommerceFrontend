@@ -14,7 +14,7 @@ import {
 import { productsAPI } from "./api"; // We'll create this
 import { toast } from "react-toastify";
 import { categories, mockProducts } from "../../mock/mockData";
-import { fetchAllProducts } from "../../api/axios";
+import { fetchAllProducts ,deleteProduct  } from "../../api/axios";
 
 const ProductsPage = () => {
   const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
@@ -163,6 +163,7 @@ const[datProduct,setDataProduct] = useState([])
     try {
       console.log("Deleting product:", productId);
       setShowDeleteModal(false);
+      const res = await deleteProduct(productId)
       fetchProducts();
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -851,7 +852,7 @@ const[datProduct,setDataProduct] = useState([])
                   Cancel
                 </button>
                 <button
-                  onClick={() => handleDelete(selectedProduct.id)}
+                  onClick={() => handleDelete(selectedProduct.productId)}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
                   Delete Product

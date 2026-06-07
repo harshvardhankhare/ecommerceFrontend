@@ -24,14 +24,13 @@ const SingleProduct = () => {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
+  const [productImages, setProductImages] = useState([
+  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=800&fit=crop",
+  "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&h=800&fit=crop",
+  "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&h=800&fit=crop",
+  "https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=800&h=800&fit=crop"
+]);
 
-  // Mock images for product gallery (in real app, this would come from API)
-  const productImages = [
-    "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=800&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=800&h=800&fit=crop",
-    "https://images.unsplash.com/photo-1600269452121-4f2416e55c28?w=800&h=800&fit=crop"
-  ];
 
   // Sample sizes (in real app, this would come from API)
   const sizes = [
@@ -89,7 +88,7 @@ const SingleProduct = () => {
       const res = await getOrderById(productId);
       console.log(res.data);
       setProduct(res.data);
-      productImages.push(res.data.imgLink); // Set main image from API response
+      setProductImages(prev => [...prev, res.data.imgLink]); // Set main image from API response
       // Initialize with first color if available
       if (res.data.colors && res.data.colors.length > 0) {
         setSelectedColor(res.data.colors[0].name);

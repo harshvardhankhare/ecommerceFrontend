@@ -68,10 +68,7 @@ const ProductsPage = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      let res = await fetchAllProducts()
-    
-  
-      // Mock data - replace with actual API call
+      let res = await fetchAllProducts();
       setProducts(res);
     } catch (error) {
       console.error("Error fetching products:", error);

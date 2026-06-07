@@ -5,10 +5,9 @@ import Navbar2 from "./Navbar2";
 import Breadcrums from "./Breadcrums";
 import { 
   IoCartOutline, IoHeartOutline, IoHeart,
-  IoShareSocialOutline, IoStar, IoChevronForward,
+  IoShareSocialOutline, IoStar,
   IoCheckmarkCircle, IoShieldCheckmarkOutline,
   IoArrowRedoOutline, IoArrowUndoOutline,
-  IoBagAddOutline, IoFlashOutline,
   IoInformationCircleOutline
 } from 'react-icons/io5';
 import { toast } from "react-toastify";
@@ -90,6 +89,7 @@ const SingleProduct = () => {
       const res = await getOrderById(productId);
       console.log(res.data);
       setProduct(res.data);
+      productImages.push(res.data.imgLink); // Set main image from API response
       // Initialize with first color if available
       if (res.data.colors && res.data.colors.length > 0) {
         setSelectedColor(res.data.colors[0].name);

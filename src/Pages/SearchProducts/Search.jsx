@@ -6,9 +6,6 @@ import {
   FiList, 
   FiChevronDown, 
   FiChevronLeft,
-  FiStar,
-  FiHeart,
-  FiShoppingBag,
   FiSearch,
   FiX,
   FiSliders

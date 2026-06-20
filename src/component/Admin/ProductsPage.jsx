@@ -13,7 +13,7 @@ import {
 import { productsAPI } from "./api"; // We'll create this
 import { toast } from "react-toastify";
 import { categories, mockProducts } from "../../mock/mockData";
-import { fetchAllProducts ,deleteProduct  } from "../../api/axios";
+import { fetchAllProducts, deleteProduct } from "../../api/axios";
 
 const ProductsPage = () => {
   const CLOUD_NAME = process.env.REACT_APP_CLOUDINARY_CLOUD_NAME;
@@ -46,7 +46,11 @@ const ProductsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [imageUploading, setImageUploading] = useState(false);
-
+  const [imageUrls, setImageUrls] = useState([]);
+  const [pageLoader, setPageLoader] = useState({
+    isLoading:false,
+    text:""
+  });
 
   const [formData, setFormData] = useState({
     title: "",
@@ -85,8 +89,13 @@ const ProductsPage = () => {
       return;
     }
     try {
+      setPageLoader({
+        isLoading:true,
+        text:"Creating Product"
+      });
+      const urls = await Promise.all(imageUrls.map(uploadImageToCloudinary));
       const selectedCategoryObj = categories.find(
-        (cat) => cat.id === Number(formData.categoryId)
+        (cat) => cat.id === Number(formData.categoryId),
       );
 
       if (!selectedCategoryObj) {
@@ -102,7 +111,7 @@ const ProductsPage = () => {
                 ...formData,
                 category: selectedCategoryObj, // ✅ FIX
               }
-            : p
+            : p,
         );
 
         setProducts(updatedProducts);
@@ -116,7 +125,7 @@ const ProductsPage = () => {
         //   creationAt: new Date().toISOString(),
         //   updatedAt: new Date().toISOString(),
         // };
-        console.log(formData);
+        console.log("images", urls);
         const newProduct = {
           name: formData.title,
           desc: formData.description,
@@ -135,7 +144,18 @@ const ProductsPage = () => {
       resetForm();
     } catch (error) {
       console.error("Error saving product:", error);
+    } finally {
+      setPageLoader({
+        isLoading:false,
+        text:""
+      });
     }
+  };
+
+  const handleImages = (e) => {
+    const files = Array.from(e.target.files);
+
+    setImageUrls((prev) => [...prev, ...files]);
   };
 
   const handleEdit = (product) => {
@@ -155,16 +175,23 @@ const ProductsPage = () => {
   };
 
   const handleDelete = async (productId) => {
-  
     try {
-      
+      setPageLoader({
+        isLoading:true,
+        text:"Deleting Product"
+      });
       setShowDeleteModal(false);
-    setSelectedProduct(null);
-       await deleteProduct(productId)
+      setSelectedProduct(null);
+      await deleteProduct(productId);
       fetchProducts();
-      toast.success("Product Deleted SuccessFully")
+      toast.success("Product Deleted SuccessFully");
     } catch (error) {
       console.error("Error deleting product:", error);
+    }finally{
+      setPageLoader({
+        isLoading:false,
+        text:""
+      });
     }
   };
 
@@ -184,21 +211,16 @@ const ProductsPage = () => {
   };
 
   const addImageField = () => {
-    setFormData({
-      ...formData,
-      images: [...formData.images, ""],
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        images: [...prev.images, ""],
+      };
+
+      console.log("AFTER ADD", updated.images);
+
+      return updated;
     });
-  };
-
-  const removeImageField = (index) => {
-    const newImages = formData.images.filter((_, i) => i !== index);
-    setFormData({ ...formData, images: newImages });
-  };
-
-  const updateImageField = (index, value) => {
-    const newImages = [...formData.images];
-    newImages[index] = value;
-    setFormData({ ...formData, images: newImages });
   };
 
   const filteredProducts = products.filter((product) => {
@@ -220,6 +242,14 @@ const ProductsPage = () => {
 
   return (
     <div className="p-6">
+      {pageLoader?.isLoading && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-[9999]">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+            <ArrowPathIcon className="h-10 w-10 animate-spin text-green-500" />
+            <p className="mt-3 font-medium">{pageLoader?.text}</p>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
         <div>
@@ -333,7 +363,9 @@ const ProductsPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-medium">${product.product_price}</div>
+                      <div className="font-medium">
+                        ${product.product_price}
+                      </div>
                       {product.discount > 0 && (
                         <div className="text-sm text-green-600">
                           {product.discount}% off
@@ -347,8 +379,8 @@ const ProductsPage = () => {
                             product.stock > 50
                               ? "bg-green-200"
                               : product.stock > 10
-                              ? "bg-yellow-200"
-                              : "bg-red-200"
+                                ? "bg-yellow-200"
+                                : "bg-red-200"
                           }`}
                         >
                           <div
@@ -356,13 +388,13 @@ const ProductsPage = () => {
                               product.stock > 50
                                 ? "bg-green-500"
                                 : product.stock > 10
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
+                                  ? "bg-yellow-500"
+                                  : "bg-red-500"
                             }`}
                             style={{
                               width: `${Math.min(
                                 (product.stock / 200) * 100,
-                                100
+                                100,
                               )}%`,
                             }}
                           ></div>
@@ -372,8 +404,8 @@ const ProductsPage = () => {
                             product.stock > 50
                               ? "text-green-700"
                               : product.stock > 10
-                              ? "text-yellow-700"
-                              : "text-red-700"
+                                ? "text-yellow-700"
+                                : "text-red-700"
                           }`}
                         >
                           {product.stock}
@@ -599,53 +631,41 @@ const ProductsPage = () => {
                         <label className="block text-sm font-medium text-gray-700">
                           Product Images *
                         </label>
-                        <button
-                          type="button"
-                          onClick={addImageField}
-                          className="text-sm text-primary hover:text-primary-dark"
-                        >
-                          Add Image
-                        </button>
-                      </div>
-                      {formData.images?.map((image, index) => (
-                        <div key={index} className="flex space-x-2 mb-2">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={async (e) => {
-                              const file = e.target.files[0];
-                              if (!file) return;
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImages}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
 
-                              toast.info("Uploading image...");
+                        <p className="mt-2 text-sm text-gray-500">
+                          {imageUrls.length} image(s) selected
+                        </p>
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {imageUrls.map((file, index) => (
+                            <div key={index} className="relative">
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt=""
+                                className="w-24 h-24 object-cover rounded"
+                              />
 
-                              try {
-                                setImageUploading(true);
-                                const imageUrl = await uploadImageToCloudinary(
-                                  file
-                                );
-                                console.log(imageUrl);
-                                updateImageField(index, imageUrl);
-                                toast.success("Image uploaded");
-                              } catch (err) {
-                                toast.error("Image upload failed");
-                              } finally {
-                                setImageUploading(false);
-                              }
-                            }}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
-                          />
-
-                          {formData.images.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => removeImageField(index)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                            >
-                              <XMarkIcon className="h-5 w-5" />
-                            </button>
-                          )}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setImageUrls((prev) =>
+                                    prev.filter((_, i) => i !== index),
+                                  )
+                                }
+                                className="absolute top-0 right-0 bg-red-500 text-white px-1 rounded"
+                              >
+                                X
+                              </button>
+                            </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -663,22 +683,26 @@ const ProductsPage = () => {
                   </button>
                   <button
                     type="submit"
-                    disabled={imageUploading}
+                    disabled={pageLoader?.isLoading}
                     className={`px-4 py-2 rounded-lg text-white flex items-center space-x-2
     ${
-      imageUploading
+      pageLoader?.isLoading
         ? "bg-gray-400 cursor-not-allowed"
         : "bg-green-500 hover:bg-green-600"
     }
   `}
                   >
-                    <CheckIcon className="h-5 w-5" />
+                    {pageLoader?.isLoading ? (
+                      <ArrowPathIcon className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <CheckIcon className="h-5 w-5" />
+                    )}
                     <span>
-                      {imageUploading
+                      {pageLoader?.isLoading
                         ? "Uploading Image..."
                         : editingProduct
-                        ? "Update Product"
-                        : "Create Product"}
+                          ? "Update Product"
+                          : "Create Product"}
                     </span>
                   </button>
                 </div>
@@ -838,8 +862,9 @@ const ProductsPage = () => {
                   Delete Product
                 </h3>
                 <p className="text-gray-500 mb-6">
-                  Are you sure you want to delete "{selectedProduct?.product_name}"?
-                  This action cannot be undone.
+                  Are you sure you want to delete "
+                  {selectedProduct?.product_name}"? This action cannot be
+                  undone.
                 </p>
               </div>
               <div className="flex justify-center space-x-4">

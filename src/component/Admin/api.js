@@ -1,5 +1,5 @@
 // API service for products
-const API_URL = process.env.REACT_APP_BASE_URL || 'https://api.escuelajs.co/api/v1';
+const API_URL = process.env.REACT_APP_BASE_URL || 'http://localhost:8080';
 
 export const productsAPI = {
   // Get all products
@@ -31,10 +31,12 @@ export const productsAPI = {
 
   // Update product
   updateProduct: async (id, productData) => {
-    const response = await fetch(`${API_URL}/products/${id}`, {
+    const token = localStorage.getItem("userToken");
+    const response = await fetch(`${API_URL}/admin/product/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(productData),
     });

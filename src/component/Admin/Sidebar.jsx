@@ -10,93 +10,103 @@ import {
   ClipboardDocumentListIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
-import { Link, useNavigate,useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
-
   const navigate = useNavigate();
+
   const menuItems = [
-    { name: 'Dashboard', icon: HomeIcon, active: true,path:'/admin' },
-    { name: 'Orders', icon: ShoppingCartIcon, count: 12 , path:'/add' },
-    { name: 'Products', icon: TagIcon, count: 156 ,path:"/add"},
-    { name: 'Customers', icon: UsersIcon, count: 892 },
-    { name: 'Inventory', icon: ClipboardDocumentListIcon },
-    { name: 'Analytics', icon: ChartBarIcon },
-    { name: 'Revenue', icon: CurrencyDollarIcon },
-    { name: 'Settings', icon: CogIcon },
+    { name: 'Dashboard', icon: HomeIcon, path: '/admin' },
+    { name: 'Orders', icon: ShoppingCartIcon, count: 12, path: '/admin/orders' },
+    { name: 'Products', icon: TagIcon, count: 156, path: '/admin/add' },
+    { name: 'Home Management', icon: UsersIcon, path: '/admin/management' },
+    { name: 'Inventory', icon: ClipboardDocumentListIcon, path: '/admin/inventory' },
+    { name: 'Analytics', icon: ChartBarIcon, path: '/admin/analytics' },
+    { name: 'Revenue', icon: CurrencyDollarIcon, path: '/admin/revenue' },
+    { name: 'Settings', icon: CogIcon, path: '/admin/settings' },
   ];
-  const handleLogOut = ()=>{
-localStorage.removeItem("userToken")
-navigate("/login/admin")
-  }
+
+  const handleLogOut = () => {
+    localStorage.removeItem("userToken");
+    navigate("/login/admin");
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <>
       {/* Overlay for mobile */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
           onClick={toggleSidebar}
         />
       )}
 
-      <aside className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-dark text-white transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out`}>
+      <aside className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 text-gray-900 transform ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-300 ease-in-out`}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-6 border-b border-red-700">
-            <h1 className="text-2xl font-bold text-gray-800">Shop<span className="text-gray-800">Admin</span></h1>
-            <p className="text-green-400 text-sm">E-commerce Dashboard</p>
+          <div className="p-6 border-b border-gray-200">
+            <h1 className="text-2xl font-bold text-black">Shop<span className="text-gray-600">Admin</span></h1>
+            <p className="text-gray-500 text-sm">E-commerce Dashboard</p>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4">
-           <ul className="space-y-2">
-  {menuItems.map((item) => (
-    <li key={item.name}>
-      {item.path ? (
-        <Link
-          to={item.path}
-          className='flex bg-gray-800 text-white items-center justify-between p-3 rounded-lg transition-colors'
-           
-        >
-          <div className="flex items-center space-x-3">
-            <item.icon className="h-5 w-5" />
-            <span>{item.name}</span>
-          </div>
-          {item.count && (
-            <span className="bg-primary text-white text-xs px-2 py-1 rounded-full">
-              {item.count}
-            </span>
-          )}
-        </Link>
-      ) : (
-        <div className="flex items-center p-3 bg-gray-800 rounded-lg opacity-50 cursor-not-allowed">
-          <item.icon className="h-5 w-5 mr-3" />
-          {item.name}
-        </div>
-      )}
-    </li>
-  ))}
-</ul>
+          <nav className="flex-1 p-4 overflow-y-auto">
+            <ul className="space-y-1">
+              {menuItems.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    to={item.path}
+                    className={`flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
+                      isActive(item.path)
+                        ? 'bg-black text-white'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-black'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <item.icon className={`h-5 w-5 ${
+                        isActive(item.path) ? 'text-white' : 'text-gray-600'
+                      }`} />
+                      <span className="font-medium">{item.name}</span>
+                    </div>
+                    {item.count && (
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        isActive(item.path)
+                          ? 'bg-white/20 text-white'
+                          : 'bg-gray-200 text-gray-700'
+                      }`}>
+                        {item.count}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </nav>
 
           {/* User Profile */}
-          <div className="p-4 border-t border-gray-700">
-            <div className="flex items-center space-x-3">
+          <div className="p-4 border-t border-gray-200">
+            <div className="flex items-center space-x-3 mb-4">
               <img
                 src="https://api.dicebear.com/7.x/avataaars/svg?seed=Admin"
                 alt="Admin"
-                className="h-10 w-10 rounded-full"
+                className="h-10 w-10 rounded-full border border-gray-300"
               />
               <div>
-                <h3 className="font-semibold">Admin User</h3>
-                <p className="text-gray-400 text-sm">admin@shop.com</p>
+                <h3 className="font-semibold text-black">Admin User</h3>
+                <p className="text-gray-500 text-sm">admin@shop.com</p>
               </div>
             </div>
-            <button onClick={handleLogOut} className="mt-4 flex items-center space-x-2 text-gray-800 hover:text-black transition-colors">
+            <button 
+              onClick={handleLogOut} 
+              className="w-full flex items-center justify-center space-x-2 px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-black rounded-lg transition-colors duration-200"
+            >
               <ArrowRightOnRectangleIcon className="h-5 w-5" />
-              <span>Logout</span>
+              <span className="font-medium">Logout</span>
             </button>
           </div>
         </div>

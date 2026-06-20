@@ -1,11 +1,25 @@
-export const  categories =[
-    { id: 1, name: "Clothes" },
-    { id: 2, name: "Electronics" },
-    { id: 3, name: "Furniture" },
-    { id: 4, name: "Shoes" },
-    { id: 4, name: "Food" },
-    { id: 5, name: "Others" },
-  ];
+export const categories = [
+  { id: 1, name: "Electronics" },
+  { id: 2, name: "Fashion" },
+  { id: 3, name: "Footwear" },
+  { id: 4, name: "Home & Furniture" },
+  { id: 5, name: "Beauty & Personal Care" },
+  { id: 6, name: "Groceries & Food" },
+  { id: 7, name: "Books" },
+  { id: 8, name: "Sports & Fitness" },
+  { id: 9, name: "Toys & Games" },
+  { id: 10, name: "Automotive" },
+  { id: 11, name: "Mobile Phones" },
+  { id: 12, name: "Laptops & Computers" },
+  { id: 13, name: "Watches" },
+  { id: 14, name: "Jewelry" },
+  { id: 15, name: "Health & Wellness" },
+  { id: 16, name: "Pet Supplies" },
+  { id: 17, name: "Office Supplies" },
+  { id: 18, name: "Baby Products" },
+  { id: 19, name: "Kitchen & Dining" },
+  { id: 20, name: "Others" }
+];
 
 
   export const mockProducts = [

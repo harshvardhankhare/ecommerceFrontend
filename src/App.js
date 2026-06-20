@@ -21,6 +21,8 @@ import PublicHomePage from "./Pages/PublicHomePage";
 import Cart from "./Pages/Cart";
 import CategoryProduct from "./Pages/CategoryProduct";
 import Categories from "./Pages/Categories";
+import HomeManagement from "./component/Admin/HomeManagement";
+import Inventory from "./component/Admin/Inventory";
 
 function App() {
   return (
@@ -63,14 +65,6 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/add"
-          element={
-            <ProtectedRoute>
-              <ProductsPage />
             </ProtectedRoute>
           }
         />
@@ -122,7 +116,12 @@ function App() {
               <Admin />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route  path="management" element={<HomeManagement/>}/>
+          <Route  path="add" element={<ProductsPage/>}/>
+          <Route  path="inventory" element={<Inventory/>}/>
+          </Route>
+
         <Route
           path="/contact"
           element={

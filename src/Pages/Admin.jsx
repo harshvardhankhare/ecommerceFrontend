@@ -5,10 +5,11 @@ import DashboardStats from '../component/Admin/DashboardStats';
 import RecentOrders from '../component/Admin/RecentOrders';
 import TopProducts from '../component/Admin/TopProducts';
 import QuickActions from '../component/Admin/QuickActions';
+import { Outlet,useLocation } from 'react-router-dom';
 
 function Admin() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const  location = useLocation();
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
@@ -21,6 +22,8 @@ function Admin() {
         <Header toggleSidebar={toggleSidebar} />
         
         <main className="flex-1 overflow-y-auto p-6">
+          {location.pathname === "/admin" ? (
+                 <>
           {/* Welcome Banner */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-800">Welcome back, Admin!</h1>
@@ -71,6 +74,9 @@ function Admin() {
               </div>
             </div>
           </div>
+          </>): (
+    <Outlet />
+  )}
         </main>
 
         {/* Footer */}

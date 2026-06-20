@@ -93,20 +93,20 @@ const Search = () => {
 
     // Apply price filter
     result = result.filter(item => 
-      item.product_price >= priceRange[0] && 
-      item.product_price <= priceRange[1]
+      item.price >= priceRange[0] && 
+      item.price <= priceRange[1]
     );
 
     // Apply sorting
     switch(sortBy) {
       case "price-low":
-        result.sort((a, b) => a.product_price - b.product_price);
+        result.sort((a, b) => a.price - b.price);
         break;
       case "price-high":
-        result.sort((a, b) => b.product_price - a.product_price);
+        result.sort((a, b) => b.price - a.price);
         break;
       case "discount":
-        result.sort((a, b) => (b.discount || 0) - (a.discount || 0));
+        result.sort((a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0));
         break;
       case "rating":
         result.sort((a, b) => (b.rating || 0) - (a.rating || 0));

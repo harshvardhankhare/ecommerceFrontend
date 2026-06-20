@@ -19,14 +19,14 @@ const Header = ({ toggleSidebar }) => {
           </button>
           
           {/* Search Bar */}
-          <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-4 py-2 w-96">
+          {/* <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-4 py-2 w-96">
             <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
             <input
               type="text"
               placeholder="Search orders, products, customers..."
               className="bg-transparent border-none outline-none px-3 w-full"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Right Section */}

@@ -21,7 +21,7 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
 
   // Calculate discounted price
   const discountedPrice = Math.round(
-    product.product_price * (1 - (product.discount || 0) / 100)
+    product.price * (1 - (product.discount || 0) / 100)
   );
 
   // Format price with commas
@@ -70,8 +70,8 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
           {/* Product Image */}
           <div className="md:w-64 h-64 md:h-auto relative overflow-hidden">
             <img 
-              src={product.imgLink} 
-              alt={product.product_name}
+              src={product?.thumbnailImage} 
+              alt={product.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
             {/* Discount Badge */}
@@ -106,7 +106,7 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
                 
                 {/* Product Name */}
                 <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-1">
-                  {product.product_name}
+                  {product.title}
                 </h3>
                 
                 {/* Rating */}
@@ -124,7 +124,7 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
 
                 {/* Product Description */}
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                  {product.product_desc || 'Premium quality product with excellent features and durability.'}
+                  {product.description || 'Premium quality product with excellent features and durability.'}
                 </p>
 
                 {/* Sizes (Mock) */}
@@ -157,7 +157,7 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
                   {product.discount > 0 && (
                     <>
                       <div className="text-gray-500 line-through">
-                        ${formatPrice(product.product_price)}
+                        ${formatPrice(product.price)}
                       </div>
                       <div className="text-red-500 font-medium text-sm">
                         {product.discount}% off
@@ -219,8 +219,8 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
       <div className="relative overflow-hidden bg-gray-50">
         {/* Product Image */}
         <img 
-          src={product.imgLink} 
-          alt={product.product_name}
+          src={product?.thumbnailImage} 
+          alt={product.title}
           className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500"
         />
         
@@ -293,7 +293,7 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
         
         {/* Product Name */}
         <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2 h-12">
-          {product.product_name}
+          {product.title}
         </h3>
 
         {/* Rating */}
@@ -319,7 +319,7 @@ const ProductCard = ({ product, viewMode = 'grid' }) => {
             {product.discount > 0 && (
               <>
                 <span className="text-gray-500 line-through text-sm ml-2">
-                  ${formatPrice(product.product_price)}
+                  ${formatPrice(product.price)}
                 </span>
                 <span className="text-red-500 font-medium text-sm ml-2">
                   {product.discount}% off

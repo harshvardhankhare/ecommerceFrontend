@@ -79,24 +79,25 @@ const Products = () => {
 
   // Filter data
   const filteredData = useMemo(() => {
+    console.log("Data",data)
     let result = data.filter(item => 
-      item.product_name.toLowerCase().includes(debouncedSearch.toLowerCase()) &&
+      (item.title || "").toLowerCase().includes((debouncedSearch || "").toLowerCase()) &&
       (category === "All" || item.category === category) &&
       (brand === "All" || item.brand === brand) &&
-      item.product_price >= priceRange[0] &&
-      item.product_price <= priceRange[1]
+      item.price >= priceRange[0] &&
+      item.price <= priceRange[1]
     );
 
     // Apply sorting
     switch(sortBy) {
       case "price-low":
-        result.sort((a, b) => a.product_price - b.product_price);
+        result.sort((a, b) => a.price - b.price);
         break;
       case "price-high":
-        result.sort((a, b) => b.product_price - a.product_price);
+        result.sort((a, b) => b.price - a.price);
         break;
       case "discount":
-        result.sort((a, b) => (b.discount || 0) - (a.discount || 0));
+        result.sort((a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0));
         break;
       case "newest":
         // Assuming there's a date field
@@ -630,8 +631,8 @@ const Products = () => {
                             {/* Product Image */}
                             <div className="md:w-64 h-64 md:h-auto">
                               <img
-                                src={product.imgLink}
-                                alt={product.product_name}
+                                src={product?.thumbnailImage}
+                                alt={product.title}
                                 className="w-full h-full object-cover"
                               />
                             </div>
@@ -640,7 +641,7 @@ const Products = () => {
                             <div className="flex-1 p-4">
                               <div className="flex justify-between">
                                 <div>
-                                  <h3 className="font-bold text-lg">{product.product_name}</h3>
+                                  <h3 className="font-bold text-lg">{product.title}</h3>
                                   <p className="text-gray-600 text-sm mt-1">{product.brand || 'Demo Brand'}</p>
                                   <div className="flex items-center mt-2">
                                     <div className="flex items-center bg-blue-50 px-2 py-1 rounded">
@@ -650,7 +651,7 @@ const Products = () => {
                                     </div>
                                   </div>
                                   <p className="text-gray-700 mt-3 line-clamp-2">
-                                    {product.product_desc}
+                                    {product.description}
                                   </p>
                                 </div>
                                 
@@ -658,12 +659,12 @@ const Products = () => {
                                 <div className="text-right">
                                   <div className="mb-4">
                                     <div className="text-2xl font-bold">
-                                      ${Math.round(product.product_price * (1 - (product.discount || 0) / 100))}
+                                      ${Math.round(product.price * (1 - (product.discount || 0) / 100))}
                                     </div>
                                     {product.discount > 0 && (
                                       <>
                                         <div className="text-gray-500 line-through">
-                                          ${product.product_price}
+                                          ${product.price}
                                         </div>
                                         <div className="text-red-500 font-medium">
                                           {product.discount}% off

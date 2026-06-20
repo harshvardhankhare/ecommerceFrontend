@@ -17,7 +17,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("userToken");
-      window.location.href = "/login"; // 🔥 redirect
+      window.location.href = "/login"; //  redirect
     }
     return Promise.reject(error);
   }
@@ -123,7 +123,7 @@ export const getAllOrder =()=> {
 export const placeOrder=(data)=>{
  return api.post("/users/place",data);
 }
-export const getOrderById =(id) =>{
+export const getProductById =(id) =>{
   return api.get(`products/product/${id}`)
 }
 export const getSearch = (query)=>{

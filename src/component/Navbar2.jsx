@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -9,12 +9,20 @@ import {
   Bars3Icon, // instead of MenuIcon
   XMarkIcon, // instead of XIcon
 } from "@heroicons/react/24/outline";
+import { getMe } from "../api/axios";
 
 const Navbar2 = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 const navigate = useNavigate();
-
+ 
+useEffect(()=>{
+    const userInfo = async ()=>{
+           const userData = await getMe();
+           console.log("user Data",userData);
+    }
+    userInfo();
+},[])
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);

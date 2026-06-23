@@ -23,6 +23,7 @@ import CategoryProduct from "./Pages/CategoryProduct";
 import Categories from "./Pages/Categories";
 import HomeManagement from "./component/Admin/HomeManagement";
 import Inventory from "./component/Admin/Inventory";
+import DealsPage from "./Pages/DealsPage";
 
 function App() {
   return (
@@ -129,6 +130,14 @@ function App() {
               <Contact />
             </ProtectedRoute>
           }
+        />
+        <Route
+        path="/deals"
+        element={
+          <ProtectedRoute>
+            <DealsPage/>
+          </ProtectedRoute>
+        }
         />
          <Route
           path="/cart"

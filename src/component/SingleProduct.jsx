@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { addToCart, getProductById } from "../api/axios";
+import { addToCart, getProductById, getProductRatinsgsByID, addProductReview } from "../api/axios";
 import Navbar2 from "./Navbar2";
 import Breadcrums from "./Breadcrums";
 import { 
@@ -8,10 +8,12 @@ import {
   IoShareSocialOutline, IoStar,
   IoCheckmarkCircle, IoShieldCheckmarkOutline,
   IoArrowRedoOutline, IoArrowUndoOutline,
-  IoInformationCircleOutline
+  IoInformationCircleOutline,
+  IoCloseOutline
 } from 'react-icons/io5';
 import { toast } from "react-toastify";
 import { FaTruck, FaTag, FaRegCreditCard } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SingleProduct = () => {
   const { productId } = useParams();
@@ -25,6 +27,17 @@ const SingleProduct = () => {
   const [showSizeChart, setShowSizeChart] = useState(false);
   const [activeTab, setActiveTab] = useState('description');
   const [productImages, setProductImages] = useState([]);
+  const [ratings, setRatings] = useState([]);
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [rating, setRating] = useState();
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    rating: 0,
+    description: '',
+    userName: '',
+  });
+  const [hoveredStar, setHoveredStar] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Sample sizes (in real app, this would come from API)
   const sizes = [
@@ -74,24 +87,83 @@ const SingleProduct = () => {
     }
   };
 
+  const handleOpenReviewModal = () => {
+    // Get user info from localStorage or use default
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    setReviewForm({
+      ...reviewForm,
+      userName: user.name || 'Anonymous User',
+    });
+    setShowReviewModal(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    setShowReviewModal(false);
+    setReviewForm({
+      rating: 0,
+      description: '',
+      userName: reviewForm.userName,
+    });
+    setHoveredStar(0);
+  };
+
+  const handleSubmitReview = async () => {
+    if (reviewForm.rating === 0) {
+      toast.error('Please select a rating');
+      return;
+    }
+    if (!reviewForm.description.trim()) {
+      toast.error('Please write a review');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const reviewData = {
+        productId: productId,
+        rating: reviewForm.rating,
+        description: reviewForm.description,
+      };
+      
+      const response = await addProductReview(reviewData);
+      toast.success('Review submitted successfully!');
+      
+      // Refresh ratings
+      const ratingResponse = await getProductRatinsgsByID(productId);
+      setRatings(ratingResponse.data);
+      
+      handleCloseReviewModal();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to submit review');
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const fetchProduct = async () => {
     try {
       setLoading(true);
       const res = await getProductById(productId);
-      console.log(res.data);
-      setProduct(res.data);
-      
+      const ratingResponse = await getProductRatinsgsByID(productId);
+      console.log(res.data.product)
+      setProduct(res.data.product);
+      setRatings(ratingResponse.data);
+      setTotalRatings(res.data.totalRatings)
+      setRating(res.data.averageRating);
       // Parse images from the new data structure
       let images = [];
       try {
-        if (res.data.imageUrls) {
-          images = typeof res.data.imageUrls === 'string' 
-            ? JSON.parse(res.data.imageUrls) 
-            : JSON.parse(res.data.imageUrls);
-        } else if (res.data.imageUrls) {
-          images = typeof res.data.imageUrls === 'string'
-            ? JSON.parse(res.data.imageUrls)
-            : res.data.imageUrls;
+        const imageData = res.data.product.imageUrls;
+
+        if (Array.isArray(imageData)) {
+          images = imageData;
+        } else if (typeof imageData === "string") {
+          if (imageData.startsWith("http")) {
+            images = [imageData];
+          } else {
+            images = JSON.parse(imageData);
+          }
         }
       } catch (e) {
         images = [];
@@ -174,7 +246,11 @@ const SingleProduct = () => {
   };
 
   const getProductTags = () => {
-    return JSON.parse(product?.tags || []);
+    try {
+      return product?.tags ? JSON.parse(product.tags) : [];
+    } catch {
+      return [];
+    }
   };
 
   const getProductWarranty = () => {
@@ -202,8 +278,15 @@ const SingleProduct = () => {
   };
 
   const getFeatures = () => {
-    return JSON.parse(product?.keyFeatures || []);
-  }
+    try {
+      return product?.keyFeatures
+        ? JSON.parse(product.keyFeatures)
+        : [];
+    } catch {
+      return [];
+    }
+  };
+
   // Loading skeleton
   if (loading) {
     return (
@@ -684,39 +767,46 @@ const SingleProduct = () => {
                     <div>
                       <h3 className="font-bold text-xl">Customer Reviews</h3>
                       <div className="flex items-center mt-2">
-                        <div className="text-3xl font-bold">{productRating || 4.5}</div>
+                        <div className="text-3xl font-bold">{rating || 4.5}</div>
                         <div className="ml-3">
                           <div className="flex items-center">
                             {[...Array(5)].map((_, i) => (
-                              <IoStar key={i} className={`h-5 w-5 ${i < Math.round(productRating || 4.5) ? 'text-yellow-400' : 'text-gray-300'}`} />
+                              <IoStar key={i} className={`h-5 w-5 ${i < Math.round(rating || 4.5) ? 'text-yellow-400' : 'text-gray-300'}`} />
                             ))}
                           </div>
-                          <p className="text-gray-600">1,247 ratings</p>
+                          <p className="text-gray-600">{totalRatings} Ratings</p>
                         </div>
                       </div>
                     </div>
-                    <button className="bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors">
+                    <button 
+                      onClick={handleOpenReviewModal}
+                      className="bg-red-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors"
+                    >
                       WRITE A REVIEW
                     </button>
                   </div>
-                  {product?.reviews && product.reviews.length > 0 && (
+                  {ratings && ratings.length > 0 ? (
                     <div className="space-y-4">
-                      {product.reviews.map((review, index) => (
+                      {ratings.map((ratingItem, index) => (
                         <div key={index} className="border-b pb-4">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center">
                               <div className="flex items-center">
                                 {[...Array(5)].map((_, i) => (
-                                  <IoStar key={i} className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`} />
+                                  <IoStar key={i} className={`h-4 w-4 ${i < ratingItem.rating ? 'text-yellow-400' : 'text-gray-300'}`} />
                                 ))}
                               </div>
-                              <span className="ml-2 font-medium">{review.reviewerName}</span>
+                              <span className="ml-2 font-medium">{ratingItem.userName || 'Anonymous'}</span>
                             </div>
-                            <span className="text-sm text-gray-500">{new Date(review.date).toLocaleDateString()}</span>
+                            <span className="text-sm text-gray-500">{new Date(ratingItem.createdAt).toLocaleDateString()}</span>
                           </div>
-                          <p className="text-gray-700">{review.comment}</p>
+                          <p className="text-gray-700">{ratingItem.description}</p>
                         </div>
                       ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">No reviews yet. Be the first to review!</p>
                     </div>
                   )}
                 </div>
@@ -738,12 +828,147 @@ const SingleProduct = () => {
           <div className="mt-12">
             <h2 className="text-2xl font-bold mb-6">Similar Products</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Add related products here */}
               <p className="text-gray-500 col-span-full text-center py-8">Related products will be shown here</p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      <AnimatePresence>
+        {showReviewModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={handleCloseReviewModal}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">Write a Review</h3>
+                  <button
+                    onClick={handleCloseReviewModal}
+                    className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                  >
+                    <IoCloseOutline className="h-6 w-6 text-gray-500" />
+                  </button>
+                </div>
+
+                {/* Product Info */}
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl mb-6">
+                  <img
+                    src={productImages[0] || product?.thumbnailImage}
+                    alt={productName}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                  <div>
+                    <h4 className="font-bold text-gray-900">{productName}</h4>
+                    <p className="text-sm text-gray-500">{productCategory}</p>
+                  </div>
+                </div>
+
+                {/* Rating Stars */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Your Rating *
+                  </label>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                        onMouseEnter={() => setHoveredStar(star)}
+                        onMouseLeave={() => setHoveredStar(0)}
+                        className="p-1 transition-transform hover:scale-110"
+                      >
+                        <IoStar 
+                          className={`h-8 w-8 ${
+                            star <= (hoveredStar || reviewForm.rating) 
+                              ? 'text-yellow-400 fill-yellow-400' 
+                              : 'text-gray-300'
+                          } transition-colors`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {reviewForm.rating > 0 
+                      ? `${reviewForm.rating} star${reviewForm.rating > 1 ? 's' : ''} selected` 
+                      : 'Select a rating'}
+                  </p>
+                </div>
+
+                {/* Review Description */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Your Review *
+                  </label>
+                  <textarea
+                    value={reviewForm.description}
+                    onChange={(e) => setReviewForm({ ...reviewForm, description: e.target.value })}
+                    rows="4"
+                    placeholder="Share your experience with this product..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                    maxLength="500"
+                  />
+                  <div className="text-right text-sm text-gray-400 mt-1">
+                    {reviewForm.description.length}/500
+                  </div>
+                </div>
+
+                {/* User Name */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Your Name
+                  </label>
+                  <input
+                    type="text"
+                    value={reviewForm.userName}
+                    onChange={(e) => setReviewForm({ ...reviewForm, userName: e.target.value })}
+                    placeholder="Enter your name"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleCloseReviewModal}
+                    className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitReview}
+                    disabled={isSubmitting}
+                    className={`flex-1 bg-red-500 text-white py-3 rounded-xl font-medium transition-colors ${
+                      isSubmitting ? 'opacity-70 cursor-not-allowed' : 'hover:bg-red-600'
+                    }`}
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Submitting...
+                      </div>
+                    ) : (
+                      'Submit Review'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* CSS for shimmer effect */}
       <style jsx>{`

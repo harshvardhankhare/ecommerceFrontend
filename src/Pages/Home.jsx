@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   FiChevronRight, 
@@ -9,14 +9,18 @@ import {
   FiStar,
   FiTrendingUp,
   FiShoppingBag,
-  FiHeart
+  FiHeart,
+  FiArrowRight
 } from "react-icons/fi";
 import { 
   IoFlashOutline,
   IoShieldCheckmarkOutline,
-  IoArrowForward
+  IoArrowForward,
+  IoSparklesOutline,
+  IoRocketOutline
 } from "react-icons/io5";
-import { FaTruck, FaUndo, FaCrown, FaFire } from "react-icons/fa";
+import { FaTruck, FaUndo, FaCrown, FaFire, FaGift } from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar2 from "../component/Navbar2";
 import Footer from "../component/Footer";
 
@@ -25,6 +29,9 @@ const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 6, minutes: 45, seconds: 30 });
   const [trendingProducts, setTrendingProducts] = useState([]);
+  const [hoveredCategory, setHoveredCategory] = useState(null);
+  const [hoveredBrand, setHoveredBrand] = useState(null);
+  const [hoveredProduct, setHoveredProduct] = useState(null);
 
   // Carousel images
   const carouselImages = [
@@ -34,7 +41,7 @@ const Home = () => {
       title: "Summer Collection 2024",
       subtitle: "Up to 70% OFF",
       buttonText: "Shop Now",
-      bgColor: "from-purple-600 to-pink-500",
+      bgColor: "from-purple-600 via-pink-600 to-red-600",
     },
     {
       id: 2,
@@ -42,7 +49,7 @@ const Home = () => {
       title: "Brand Festival",
       subtitle: "Top Brands at Best Prices",
       buttonText: "Explore Brands",
-      bgColor: "from-blue-600 to-cyan-500",
+      bgColor: "from-blue-600 via-cyan-500 to-teal-500",
     },
     {
       id: 3,
@@ -50,7 +57,7 @@ const Home = () => {
       title: "Weekend Special",
       subtitle: "Extra 20% OFF on Fashion",
       buttonText: "Grab Deals",
-      bgColor: "from-red-600 to-orange-500",
+      bgColor: "from-red-600 via-orange-500 to-yellow-500",
     },
   ];
 
@@ -65,7 +72,7 @@ const Home = () => {
       productCount: 245,
       subcategories: ['Smartphones', 'Laptops', 'Headphones', 'Smart Watches', 'Gaming'],
       icon: '📱',
-      color: 'bg-blue-50'
+      color: 'from-blue-500 to-cyan-500'
     },
     {
       id: 2,
@@ -76,7 +83,7 @@ const Home = () => {
       productCount: 189,
       subcategories: ['Men', 'Women', 'Kids', 'Accessories', 'Shoes'],
       icon: '👕',
-      color: 'bg-pink-50'
+      color: 'from-pink-500 to-rose-500'
     },
     {
       id: 3,
@@ -87,7 +94,7 @@ const Home = () => {
       productCount: 156,
       subcategories: ['Furniture', 'Kitchen', 'Decor', 'Garden', 'Lighting'],
       icon: '🏠',
-      color: 'bg-green-50'
+      color: 'from-green-500 to-emerald-500'
     },
     {
       id: 4,
@@ -98,7 +105,7 @@ const Home = () => {
       productCount: 98,
       subcategories: ['Skincare', 'Makeup', 'Fragrances', 'Haircare', 'Tools'],
       icon: '💄',
-      color: 'bg-purple-50'
+      color: 'from-purple-500 to-violet-500'
     },
     {
       id: 5,
@@ -109,7 +116,7 @@ const Home = () => {
       productCount: 76,
       subcategories: ['Fitness', 'Outdoor', 'Team Sports', 'Yoga', 'Cycling'],
       icon: '⚽',
-      color: 'bg-orange-50'
+      color: 'from-orange-500 to-red-500'
     },
     {
       id: 6,
@@ -120,7 +127,7 @@ const Home = () => {
       productCount: 321,
       subcategories: ['Fiction', 'Non-Fiction', 'Educational', 'Children', 'Business'],
       icon: '📚',
-      color: 'bg-yellow-50'
+      color: 'from-yellow-500 to-amber-500'
     },
     {
       id: 7,
@@ -131,7 +138,7 @@ const Home = () => {
       productCount: 142,
       subcategories: ['Action Figures', 'Board Games', 'Puzzles', 'Educational', 'Outdoor'],
       icon: '🎮',
-      color: 'bg-red-50'
+      color: 'from-red-500 to-pink-500'
     },
     {
       id: 8,
@@ -142,7 +149,7 @@ const Home = () => {
       productCount: 54,
       subcategories: ['Necklaces', 'Rings', 'Watches', 'Bracelets', 'Earrings'],
       icon: '💎',
-      color: 'bg-cyan-50'
+      color: 'from-cyan-500 to-blue-500'
     },
   ];
 
@@ -164,7 +171,8 @@ const Home = () => {
       title: "Free Delivery",
       description: "On orders above $50",
       color: "text-green-600",
-      bgColor: "bg-green-50"
+      bgColor: "bg-green-50",
+      gradient: "from-green-500 to-emerald-500"
     },
     {
       id: 2,
@@ -172,7 +180,8 @@ const Home = () => {
       title: "Easy Returns",
       description: "30 days return policy",
       color: "text-blue-600",
-      bgColor: "bg-blue-50"
+      bgColor: "bg-blue-50",
+      gradient: "from-blue-500 to-cyan-500"
     },
     {
       id: 3,
@@ -180,7 +189,8 @@ const Home = () => {
       title: "100% Authentic",
       description: "Genuine products",
       color: "text-purple-600",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-purple-50",
+      gradient: "from-purple-500 to-violet-500"
     },
     {
       id: 4,
@@ -188,7 +198,8 @@ const Home = () => {
       title: "Fast Delivery",
       description: "Express shipping",
       color: "text-yellow-600",
-      bgColor: "bg-yellow-50"
+      bgColor: "bg-yellow-50",
+      gradient: "from-yellow-500 to-orange-500"
     },
   ];
 
@@ -202,7 +213,8 @@ const Home = () => {
       discount: 35,
       image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
       category: "Electronics",
-      sold: 1234
+      sold: 1234,
+      rating: 4.7
     },
     {
       id: 2,
@@ -212,7 +224,8 @@ const Home = () => {
       discount: 30,
       image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
       category: "Sports",
-      sold: 856
+      sold: 856,
+      rating: 4.5
     },
     {
       id: 3,
@@ -222,7 +235,8 @@ const Home = () => {
       discount: 25,
       image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
       category: "Electronics",
-      sold: 567
+      sold: 567,
+      rating: 4.8
     },
     {
       id: 4,
@@ -232,7 +246,8 @@ const Home = () => {
       discount: 33,
       image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop",
       category: "Fashion",
-      sold: 234
+      sold: 234,
+      rating: 4.6
     },
   ];
 
@@ -266,15 +281,15 @@ const Home = () => {
     <>
       <Navbar2 />
       
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         {/* Hero Carousel */}
         <div className="relative overflow-hidden">
-          <div className="relative h-[400px] md:h-[500px]">
+          <div className="relative h-[450px] md:h-[550px]">
             {carouselImages.map((slide, index) => (
               <div
                 key={slide.id}
                 className={`absolute inset-0 transition-opacity duration-1000 ${
-                  index === currentSlide ? 'opacity-100' : 'opacity-0'
+                  index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
                 }`}
               >
                 <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgColor} opacity-90`} />
@@ -285,30 +300,60 @@ const Home = () => {
                 />
                 <div className="absolute inset-0 flex items-center">
                   <div className="container mx-auto px-4 md:px-8">
-                    <div className="max-w-xl text-white">
-                      <h1 className="text-4xl md:text-5xl font-bold mb-4">{slide.title}</h1>
-                      <p className="text-xl mb-8">{slide.subtitle}</p>
-                      <button
-                        onClick={() => navigate('/products')}
-                        className="bg-white text-gray-900 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+                    <motion.div 
+                      initial={{ x: -100, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.8 }}
+                      className="max-w-xl text-white"
+                    >
+                      <motion.div
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        className="inline-block bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-sm font-semibold mb-4"
                       >
-                        {slide.buttonText}
-                      </button>
-                    </div>
+                        🔥 Limited Offer
+                      </motion.div>
+                      <h1 className="text-4xl md:text-6xl font-bold mb-4">{slide.title}</h1>
+                      <p className="text-xl mb-8">{slide.subtitle}</p>
+                      <motion.button
+                        onClick={() => navigate('/products')}
+                        className="bg-white text-gray-900 px-8 py-3 rounded-lg font-bold hover:shadow-2xl transition-all transform hover:scale-105"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {slide.buttonText} <FiArrowRight className="inline ml-2" />
+                      </motion.button>
+                    </motion.div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
           
+          {/* Carousel Controls */}
+          <button
+            onClick={() => setCurrentSlide((prev) => (prev - 1 + carouselImages.length) % carouselImages.length)}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-md hover:bg-white/30 text-white p-3 rounded-full z-20 transition-all hover:scale-110"
+          >
+            <FiChevronRight className="h-6 w-6 transform rotate-180" />
+          </button>
+          <button
+            onClick={() => setCurrentSlide((prev) => (prev + 1) % carouselImages.length)}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-md hover:bg-white/30 text-white p-3 rounded-full z-20 transition-all hover:scale-110"
+          >
+            <FiChevronRight className="h-6 w-6" />
+          </button>
+
           {/* Carousel Dots */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
             {carouselImages.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
-                className={`w-2 h-2 rounded-full ${
-                  index === currentSlide ? 'bg-white' : 'bg-white/50'
+                className={`h-3 rounded-full transition-all ${
+                  index === currentSlide 
+                    ? 'bg-white w-10' 
+                    : 'bg-white/50 w-3 hover:bg-white/80'
                 }`}
               />
             ))}
@@ -316,164 +361,270 @@ const Home = () => {
         </div>
 
         {/* Flash Sale Timer */}
-        <div className="bg-gradient-to-r from-red-600 to-orange-500 text-white py-6">
-          <div className="container mx-auto px-4">
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500 text-white py-8 relative overflow-hidden"
+        >
+          <motion.div 
+            className="absolute inset-0 opacity-10"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ repeat: Infinity, duration: 10 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-red-400 to-pink-400"></div>
+          </motion.div>
+          <div className="container mx-auto px-4 relative z-10">
             <div className="flex flex-col md:flex-row items-center justify-between">
               <div className="flex items-center mb-4 md:mb-0">
-                <FaFire className="h-8 w-8 mr-3" />
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                >
+                  <FaFire className="h-10 w-10 mr-4" />
+                </motion.div>
                 <div>
-                  <h2 className="text-2xl font-bold">FLASH SALE</h2>
-                  <p className="text-sm opacity-90">Limited time offers</p>
+                  <h2 className="text-3xl font-bold">FLASH SALE</h2>
+                  <p className="text-sm opacity-90">Limited time offers - Don't miss out!</p>
                 </div>
               </div>
               
               <div className="flex items-center space-x-4">
-                <div className="text-center">
-                  <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                    <div className="text-2xl font-bold">{timeLeft.hours.toString().padStart(2, '0')}</div>
-                    <div className="text-xs">HOURS</div>
-                  </div>
-                </div>
-                <div className="text-2xl">:</div>
-                <div className="text-center">
-                  <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                    <div className="text-2xl font-bold">{timeLeft.minutes.toString().padStart(2, '0')}</div>
-                    <div className="text-xs">MINUTES</div>
-                  </div>
-                </div>
-                <div className="text-2xl">:</div>
-                <div className="text-center">
-                  <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
-                    <div className="text-2xl font-bold">{timeLeft.seconds.toString().padStart(2, '0')}</div>
-                    <div className="text-xs">SECONDS</div>
-                  </div>
-                </div>
-                <button
+                {['hours', 'minutes', 'seconds'].map((unit, index) => (
+                  <Fragment key={unit}>
+                    <motion.div 
+                      className="text-center"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div className="bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2 min-w-[60px]">
+                        <div className="text-3xl font-bold tabular-nums">
+                          {String(timeLeft[unit]).padStart(2, '0')}
+                        </div>
+                        <div className="text-xs uppercase">{unit}</div>
+                      </div>
+                    </motion.div>
+                    {index < 2 && <div className="text-3xl font-light">:</div>}
+                  </Fragment>
+                ))}
+                <motion.button
                   onClick={() => navigate('/products')}
-                  className="ml-4 bg-white text-red-600 px-6 py-2 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+                  className="ml-4 bg-white text-red-600 px-6 py-3 rounded-lg font-bold hover:shadow-2xl transition-all"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   SHOP NOW
-                </button>
+                </motion.button>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Categories Section */}
-        <div className="py-12 bg-white">
+        <div className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-8">
+            <motion.div 
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              className="flex justify-between items-center mb-8"
+            >
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Shop By Category</h2>
+                <h2 className="text-3xl font-bold text-gray-900 flex items-center">
+                  <IoSparklesOutline className="h-8 w-8 text-yellow-500 mr-3" />
+                  Shop By Category
+                </h2>
                 <p className="text-gray-600 mt-2">Browse through our wide range of categories</p>
               </div>
               <Link
                 to="/products"
-                className="text-red-500 hover:text-red-600 font-medium flex items-center"
+                className="text-blue-600 hover:text-blue-700 font-medium flex items-center group"
               >
-                View All <FiChevronRight className="ml-1" />
+                View All 
+                <motion.span
+                  className="ml-1 inline-block group-hover:translate-x-1 transition-transform"
+                >
+                  <FiChevronRight />
+                </motion.span>
               </Link>
-            </div>
+            </motion.div>
 
             {/* Categories Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-              {categories.map(category => (
-                <Link
+              {categories.map((category, index) => (
+                <motion.div
                   key={category.id}
-                  to={`/products?category=${category.slug}`}
-                  className={`group ${category.color} rounded-xl p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  onHoverStart={() => setHoveredCategory(category.id)}
+                  onHoverEnd={() => setHoveredCategory(null)}
+                  className="relative"
                 >
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center mb-3 text-2xl group-hover:scale-110 transition-transform">
-                      {category.icon}
+                  <Link
+                    to={`/products?category=${category.slug}`}
+                    className={`block rounded-xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 relative overflow-hidden bg-gradient-to-br ${category.color}`}
+                  >
+                    <div className="absolute inset-0 bg-white/10 group-hover:bg-white/20 transition-colors"></div>
+                    <div className="flex flex-col items-center text-center relative z-10">
+                      <div className="w-16 h-16 md:w-20 md:h-20 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center mb-3 text-3xl shadow-lg group-hover:scale-110 transition-transform">
+                        {category.icon}
+                      </div>
+                      <h3 className="font-bold text-white text-shadow mb-1">{category.name}</h3>
+                      <p className="text-xs text-white/90 mb-2">{category.productCount} products</p>
+                      <motion.div 
+                        className="flex items-center text-white/90 text-sm"
+                        animate={hoveredCategory === category.id ? { x: [0, 5, 0] } : {}}
+                        transition={{ repeat: Infinity, duration: 1 }}
+                      >
+                        <span>Explore</span>
+                        <IoArrowForward className="ml-1 h-4 w-4" />
+                      </motion.div>
                     </div>
-                    <h3 className="font-bold text-gray-900 mb-1">{category.name}</h3>
-                    <p className="text-xs text-gray-600 mb-2">{category.productCount} products</p>
-                    <div className="flex items-center text-red-500 text-sm">
-                      <span>Explore</span>
-                      <IoArrowForward className="ml-1 h-4 w-4" />
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
         </div>
 
         {/* Featured Brands */}
-        <div className="py-12 bg-gray-50">
+        <div className="py-16 bg-gradient-to-b from-gray-50 to-white">
           <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-8">
+            <motion.div 
+              initial={{ x: 50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              className="flex justify-between items-center mb-8"
+            >
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Featured Brands</h2>
+                <h2 className="text-3xl font-bold text-gray-900 flex items-center">
+                  <FaCrown className="h-8 w-8 text-yellow-500 mr-3" />
+                  Featured Brands
+                </h2>
                 <p className="text-gray-600 mt-2">Shop from top brands</p>
               </div>
               <Link
                 to="/products"
-                className="text-red-500 hover:text-red-600 font-medium flex items-center"
+                className="text-blue-600 hover:text-blue-700 font-medium flex items-center group"
               >
-                View All <FiChevronRight className="ml-1" />
+                View All 
+                <motion.span className="ml-1 inline-block group-hover:translate-x-1 transition-transform">
+                  <FiChevronRight />
+                </motion.span>
               </Link>
-            </div>
+            </motion.div>
 
             <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-              {featuredBrands.map(brand => (
-                <Link
+              {featuredBrands.map((brand, index) => (
+                <motion.div
                   key={brand.id}
-                  to={`/products?brand=${brand.name}`}
-                  className="bg-white rounded-xl p-4 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -8, scale: 1.05 }}
+                  onHoverStart={() => setHoveredBrand(brand.id)}
+                  onHoverEnd={() => setHoveredBrand(null)}
+                  className="relative"
                 >
-                  <div className="flex flex-col items-center">
-                    <div className="w-16 h-16 rounded-full overflow-hidden mb-3">
-                      <img
-                        src={brand.logo}
-                        alt={brand.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                      />
+                  <Link
+                    to={`/products?brand=${brand.name}`}
+                    className="bg-white rounded-xl p-4 shadow-sm hover:shadow-2xl transition-all duration-300 block group"
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="w-20 h-20 rounded-full overflow-hidden mb-3 ring-2 ring-gray-100 group-hover:ring-blue-500 transition-all">
+                        <img
+                          src={brand.logo}
+                          alt={brand.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      </div>
+                      <h3 className="font-bold text-gray-900 text-sm">{brand.name}</h3>
+                      <p className="text-xs text-gray-600 mt-1">{brand.category}</p>
+                      {hoveredBrand === brand.id && (
+                        <motion.div 
+                          className="mt-2 w-full h-0.5 bg-gradient-to-r from-blue-500 to-purple-600"
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      )}
                     </div>
-                    <h3 className="font-bold text-gray-900 text-sm">{brand.name}</h3>
-                    <p className="text-xs text-gray-600 mt-1">{brand.category}</p>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))}
             </div>
           </div>
         </div>
 
         {/* Trending Deals */}
-        <div className="py-12 bg-white">
+        <div className="py-16 bg-white">
           <div className="container mx-auto px-4">
-            <div className="flex justify-between items-center mb-8">
+            <motion.div 
+              initial={{ x: -50, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              className="flex justify-between items-center mb-8"
+            >
               <div className="flex items-center">
-                <FiTrendingUp className="h-8 w-8 text-red-500 mr-3" />
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 3 }}
+                >
+                  <FiTrendingUp className="h-8 w-8 text-red-500 mr-3" />
+                </motion.div>
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Trending Deals</h2>
+                  <h2 className="text-3xl font-bold text-gray-900">Trending Deals</h2>
                   <p className="text-gray-600 mt-2">Most popular products this week</p>
                 </div>
               </div>
               <Link
                 to="/products"
-                className="text-red-500 hover:text-red-600 font-medium flex items-center"
+                className="text-blue-600 hover:text-blue-700 font-medium flex items-center group"
               >
-                View All <FiChevronRight className="ml-1" />
+                View All 
+                <motion.span className="ml-1 inline-block group-hover:translate-x-1 transition-transform">
+                  <FiChevronRight />
+                </motion.span>
               </Link>
-            </div>
+            </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {trendingDeals.map(product => (
-                <div
+              {trendingDeals.map((product, index) => (
+                <motion.div
                   key={product.id}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                  initial={{ y: 50, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -10 }}
+                  onHoverStart={() => setHoveredProduct(product.id)}
+                  onHoverEnd={() => setHoveredProduct(null)}
+                  className="bg-white rounded-xl shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden group border border-gray-100"
                 >
                   <div className="relative overflow-hidden">
-                    <img
+                    <motion.img
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-48 object-cover"
+                      whileHover={{ scale: 1.08 }}
+                      transition={{ duration: 0.5 }}
                     />
-                    <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                      {product.discount}% OFF
-                    </div>
+                    <motion.div 
+                      className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg"
+                      whileHover={{ scale: 1.1 }}
+                    >
+                      -{product.discount}% OFF
+                    </motion.div>
+                    {hoveredProduct === product.id && (
+                      <motion.div 
+                        className="absolute inset-0 bg-black/20 flex items-center justify-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        <button className="bg-white text-gray-900 px-6 py-2 rounded-lg font-semibold shadow-lg hover:bg-gray-100 transition-colors">
+                          Quick View
+                        </button>
+                      </motion.div>
+                    )}
                   </div>
                   <div className="p-4">
                     <div className="text-xs text-gray-500 mb-1">{product.category}</div>
@@ -481,7 +632,7 @@ const Home = () => {
                     <div className="flex items-center mb-3">
                       <div className="flex items-center text-sm">
                         <FiStar className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
-                        <span className="font-medium">4.5</span>
+                        <span className="font-medium">{product.rating}</span>
                         <span className="text-gray-500 text-xs ml-1">(1.2k)</span>
                       </div>
                       <div className="ml-4 text-xs text-green-600">
@@ -492,62 +643,100 @@ const Home = () => {
                       <span className="text-xl font-bold text-gray-900">${product.price}</span>
                       <span className="text-gray-500 line-through text-sm ml-2">${product.originalPrice}</span>
                     </div>
-                    <button
+                    <motion.button
                       onClick={() => navigate('/products')}
-                      className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition-colors"
+                      className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:shadow-lg text-white py-2 rounded-lg font-medium transition-all"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
                       <FiShoppingBag className="inline h-4 w-4 mr-2" />
                       Add to Cart
-                    </button>
+                    </motion.button>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </div>
 
         {/* Trust Features */}
-        <div className="py-12 bg-gradient-to-r from-purple-50 to-pink-50">
+        <div className="py-16 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50">
           <div className="container mx-auto px-4">
-            <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">
+            <motion.h2 
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="text-3xl font-bold text-center text-gray-900 mb-12"
+            >
               Why Shop With Us?
-            </h2>
+            </motion.h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {trustFeatures.map(feature => (
-                <div
+              {trustFeatures.map((feature, index) => (
+                <motion.div
                   key={feature.id}
-                  className="bg-white rounded-xl p-6 text-center hover:shadow-xl transition-all duration-300"
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-2xl transition-all duration-300"
                 >
-                  <div className={`${feature.bgColor} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4`}>
-                    <div className={feature.color}>
+                  <motion.div 
+                    className={`bg-gradient-to-br ${feature.gradient} w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg`}
+                    whileHover={{ rotate: 360 }}
+                    transition={{ duration: 0.6 }}
+                  >
+                    <div className="text-white text-3xl">
                       {feature.icon}
                     </div>
-                  </div>
-                  <h3 className="font-bold text-lg mb-2">{feature.title}</h3>
+                  </motion.div>
+                  <h3 className="font-bold text-xl mb-2">{feature.title}</h3>
                   <p className="text-gray-600">{feature.description}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </div>
 
         {/* Newsletter */}
-        <div className="py-12 bg-gradient-to-r from-blue-600 to-cyan-500 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Stay Updated</h2>
-            <p className="text-lg mb-8 opacity-90">
-              Subscribe to get exclusive offers and the latest news
-            </p>
-            <div className="max-w-md mx-auto flex">
+        <div className="py-16 bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-500 text-white relative overflow-hidden">
+          <motion.div 
+            className="absolute inset-0 opacity-10"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ repeat: Infinity, duration: 15 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400"></div>
+          </motion.div>
+          <div className="container mx-auto px-4 text-center relative z-10">
+            <motion.div
+              initial={{ y: -30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+            >
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">Stay Updated</h2>
+              <p className="text-xl mb-8 opacity-90">
+                Subscribe to get exclusive offers and the latest news
+              </p>
+            </motion.div>
+            <motion.div 
+              className="max-w-md mx-auto flex"
+              initial={{ y: 30, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none"
+                className="flex-1 px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
               />
-              <button className="bg-red-500 hover:bg-red-600 px-6 py-3 rounded-r-lg font-bold transition-colors">
+              <motion.button 
+                className="bg-red-500 hover:bg-red-600 px-8 py-3 rounded-r-lg font-bold transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 Subscribe
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
             <p className="text-sm mt-4 opacity-80">
               By subscribing, you agree to our Privacy Policy
             </p>
@@ -555,30 +744,55 @@ const Home = () => {
         </div>
 
         {/* App Download Banner */}
-        <div className="py-8 bg-gray-900 text-white">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-between">
+        <div className="py-12 bg-gray-900 text-white relative overflow-hidden">
+          <motion.div 
+            className="absolute inset-0 opacity-5"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ repeat: Infinity, duration: 20 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+          </motion.div>
+          <div className="container mx-auto px-4 relative z-10">
+            <motion.div 
+              className="flex flex-col md:flex-row items-center justify-between"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+            >
               <div className="mb-6 md:mb-0">
-                <h2 className="text-2xl font-bold mb-2">Get the App</h2>
+                <h2 className="text-3xl font-bold mb-2 flex items-center">
+                  <IoRocketOutline className="mr-3 text-blue-400" />
+                  Get the App
+                </h2>
                 <p className="text-gray-400">Experience shopping on the go</p>
               </div>
               <div className="flex space-x-4">
-                <button className="bg-black hover:bg-gray-800 px-6 py-3 rounded-lg flex items-center">
-                  <div className="mr-3 text-2xl">📱</div>
+                <motion.button 
+                  className="bg-black hover:bg-gray-800 px-6 py-3 rounded-lg flex items-center border border-gray-700 hover:border-gray-600 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="mr-3 text-3xl">📱</div>
                   <div className="text-left">
-                    <div className="text-xs">Download on the</div>
+                    <div className="text-xs text-gray-400">Download on the</div>
                     <div className="font-bold">App Store</div>
                   </div>
-                </button>
-                <button className="bg-black hover:bg-gray-800 px-6 py-3 rounded-lg flex items-center">
-                  <div className="mr-3 text-2xl">▶️</div>
+                </motion.button>
+                <motion.button 
+                  className="bg-black hover:bg-gray-800 px-6 py-3 rounded-lg flex items-center border border-gray-700 hover:border-gray-600 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <div className="mr-3 text-3xl">▶️</div>
                   <div className="text-left">
-                    <div className="text-xs">Get it on</div>
+                    <div className="text-xs text-gray-400">Get it on</div>
                     <div className="font-bold">Google Play</div>
                   </div>
-                </button>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

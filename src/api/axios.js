@@ -132,4 +132,10 @@ export const getSearch = (query)=>{
 export const deleteProduct = (id) => {
   return api.delete(`products/delete/${id}`);
 }
+export const getProductRatinsgsByID =(id) =>{
+  return api.get(`products/${id}/ratings`);
+}
+export const addProductReview  =(data) =>{
+  return api.post("/products/create-rating",data)
+}
 export default api;

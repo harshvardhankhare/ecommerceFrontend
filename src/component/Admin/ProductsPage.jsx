@@ -202,7 +202,7 @@ const ProductsPage = () => {
         };
         console.log("Updating product:", updatedProduct);
          let res = await productsAPI.updateProduct(updatedProduct.id, updatedProduct);
-         toast.success(res || "Product updated successfully!");
+         toast.success(res.message || "Product updated successfully!");
       } else {
         console.log("Creating product:", productData);
          let res = await productsAPI.createProduct(productData);
